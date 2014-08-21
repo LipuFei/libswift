@@ -1383,6 +1383,16 @@ bin_t binmap_t::find_complement(const binmap_t& destination, const binmap_t& sou
             } else if (is_sref) {
                 if (dbitmap == BITMAP_EMPTY) {
                     const cell_t& cell = source.cell_[sref];
+                    fprintf(stderr, "!!!! SEGFAULT IF TEST\n");
+                    fflush(stderr);
+                    fprintf(stderr, "1 = %d\n", !cell.is_left_ref_);
+                    fflush(stderr);
+                    fprintf(stderr, "2 = %d\n", !cell.is_right_ref_);
+                    fflush(stderr);
+                    fprintf(stderr, "3 = %d\n", cell.left_.bitmap_ == BITMAP_FILLED);
+                    fflush(stderr);
+                    fprintf(stderr, "4 = %d\n", cell.right_.bitmap_ == BITMAP_FILLED);
+                    fflush(stderr);
                     if (!cell.is_left_ref_ && !cell.is_right_ref_ && cell.left_.bitmap_ == BITMAP_FILLED
                             && cell.right_.bitmap_ == BITMAP_FILLED) {
                         return range;

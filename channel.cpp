@@ -497,6 +497,15 @@ int swift::evbuffer_add_64be(struct evbuffer *evb, uint64_t l)
 
 int swift::evbuffer_add_hash(struct evbuffer *evb, const Sha1Hash& hash)
 {
+    // test hash beforehand
+    uint8_t val = 0;
+    fprintf(stderr, "!!!! SEGFAULT HASH BITS TEST BEGIN evb = %p, hash_ptr = %p\n", evb, hash.bits);
+    fflush(stderr);
+    for (int idx = 0; idx < Sha1Hash::SIZE; idx++) {
+        val += hash.bits[idx];
+    }
+    fprintf(stderr, "!!!! SEGFAULT HASH BITS TEST PASSED %d\n", val);
+    fflush(stderr);
     return evbuffer_add(evb, hash.bits, Sha1Hash::SIZE);
 }
 
