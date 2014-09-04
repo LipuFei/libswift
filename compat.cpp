@@ -26,6 +26,11 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef _WIN32
+# include <windows.h>
+# include <Dbghelp.h>
+#endif
+
 
 namespace swift
 {
@@ -36,6 +41,34 @@ namespace swift
 // Arno, 2013-10-16: For improved usec_time()
     LARGE_INTEGER epochcounter;
 #endif
+
+    void print_backtrace(void)
+    {
+#ifdef _WIN32
+        unsigned int   i;
+        void         * stack[100];
+        unsigned short frames;
+        SYMBOL_INFO  * symbol;
+        HANDLE         process;
+
+        process = GetCurrentProcess();
+
+        SymInitialize( process, NULL, TRUE );
+
+        frames               = CaptureStackBackTrace(0, 100, stack, NULL);
+        symbol               = (SYMBOL_INFO *)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
+        symbol->MaxNameLen   = 255;
+        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+        for (i = 0; i < frames; i++) {
+            SymFromAddr(process, (DWORD64)(stack[ i ]), 0, symbol);
+            fprintf(stderr, "%i: %s - 0x%0X\n", frames - i - 1, symbol->Name, symbol->Address);
+        }
+        fflush(stderr);
+
+        free(symbol);
+#endif
+    }
 
     int64_t file_size(int fd)
     {
@@ -82,6 +115,8 @@ namespace swift
         if (e)
             fprintf(stderr,"windows error #%" PRIu32 "\n",e);
 #endif
+        fprintf(stderr, msg);
+        print_backtrace();
     }
 
     void*   memory_map(int fd, size_t size)
