@@ -26,10 +26,12 @@
 #include <iostream>
 #include <sstream>
 
-#ifdef _WIN32
-# include <windows.h>
-# include <Dbghelp.h>
-#endif
+#ifdef DEBUG
+# ifdef _WIN32
+#  include <windows.h>
+#  include <Dbghelp.h>
+# endif // _WIN32
+#endif // DEBUG
 
 
 namespace swift
@@ -44,7 +46,8 @@ namespace swift
 
     void print_backtrace(void)
     {
-#ifdef _WIN32
+#ifdef DEBUG
+# ifdef _WIN32
         unsigned int   i;
         void         * stack[100];
         unsigned short frames;
@@ -67,7 +70,8 @@ namespace swift
         fflush(stderr);
 
         free(symbol);
-#endif
+# endif // _WIN32
+#endif // DEBUG
     }
 
     int64_t file_size(int fd)
@@ -115,8 +119,9 @@ namespace swift
         if (e)
             fprintf(stderr,"windows error #%" PRIu32 "\n",e);
 #endif
-        fprintf(stderr, msg);
+#ifdef DEBUG
         print_backtrace();
+#endif
     }
 
     void*   memory_map(int fd, size_t size)
